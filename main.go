@@ -21,6 +21,7 @@ func main() {
 	version := flag.String("v", "version", "Version of secret To Fetch")
 	skipProfile := flag.Bool("k", false, "Skip profile check and just use default for use when no cred file and default will work")
 	credFile := flag.String("c", filepath.Join(getCredentialPath(), ".aws", "credentials"), "Full path to credentials file")
+	region := flag.String("r", "us-east-1", "AWS Region")
 	flag.Parse()
 	if *secret == "secret" {
 		fmt.Println("You must specify a secret name to fetch")
@@ -38,18 +39,18 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
-		sess = CreateSession(sourceProfile)
+		sess = CreateSession(sourceProfile, region)
 	}
 
 	getSecret(sess, secret, version)
 }
 
 // CreateSession Creates AWS Session with specified profile
-func CreateSession(profileName *string) *session.Session {
+func CreateSession(profileName, region *string) *session.Session {
 	profileNameValue := *profileName
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		Profile: profileNameValue,
-		Config:  aws.Config{Region: aws.String("us-east-1")},
+		Config:  aws.Config{Region: region},
 	}))
 	return sess
 }

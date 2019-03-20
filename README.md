@@ -12,6 +12,8 @@ Currently supported
         Profile to use (default "default")
   -s string
         Secret To Fetch (default "secret")
+  -r string
+        AWS Region (default "us-east-1")
   -v string
         Version of secret To Fetch (default "version")
 ```
