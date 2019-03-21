@@ -13,9 +13,14 @@ import (
 )
 
 func main() {
-	secret := flag.String("s", "secret", "Secret To Fetch")
-	region := flag.String("r", "us-east-1", "AWS Region")
-	version := flag.String("v", "version", "Version of secret To Fetch")
+
+	var (
+		extract = flag.Bool("e", true, "Extract json")
+		secret  = flag.String("s", "secret", "Secret To Fetch")
+		region  = flag.String("r", "us-east-1", "AWS Region")
+		version = flag.String("v", "version", "Version of secret To Fetch")
+	)
+
 	flag.Parse()
 	if *secret == "secret" {
 		fmt.Println("You must specify a secret name to fetch")
@@ -26,10 +31,10 @@ func main() {
 		Config: aws.Config{Region: region},
 	}))
 
-	getSecret(sess, secret, version)
+	getSecret(sess, secret, version, extract)
 }
 
-func getSecret(sess *session.Session, secretName *string, secretVersion *string) {
+func getSecret(sess *session.Session, secretName, secretVersion *string, extract *bool) {
 	svc := secretsmanager.New(sess)
 	var versionID string
 	if *secretVersion == "version" {
@@ -67,10 +72,13 @@ func getSecret(sess *session.Session, secretName *string, secretVersion *string)
 		return
 	}
 
-	// Convert structs to JSON.
-	data, err := json.Marshal(result)
-	if err != nil {
-		log.Fatal(err)
+	if *extract {
+		fmt.Println(*result.SecretString)
+	} else {
+		data, err := json.Marshal(result)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(data)
 	}
-	fmt.Printf("%s\n", data)
 }
